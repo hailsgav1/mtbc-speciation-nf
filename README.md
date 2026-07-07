@@ -18,14 +18,7 @@ independent signals and reconciles them, flagging disagreements for review.
 ## What it does
 
 ```
-reads → QC/trim → map to H37Rv → variant call → MTBC speciation → report
-                                                       │
-                                   ┌───────────────────┼───────────────────┐
-                              RD-Analyzer         TB-Profiler            SNP-IT
-                          (regions of diff.)   (lineage + WHO DR)   (SNP barcode)
-                                   └───────────────────┼───────────────────┘
-                                              consensus species call
-                                            (majority vote + conflict flag)
+![MTBC speciation pipeline](docs/pipeline.png)
 ```
 
 1. **QC + trim** — FastQC, fastp
