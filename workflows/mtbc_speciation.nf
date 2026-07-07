@@ -6,6 +6,8 @@ include { MULTIQC       } from '../modules/local/multiqc.nf'
 
 workflow MTBC_SPECIATION {
 
+    main:
+
     ch_versions = Channel.empty()
     reference   = file(params.reference, checkIfExists: true)
 
