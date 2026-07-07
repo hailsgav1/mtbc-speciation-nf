@@ -1,3 +1,4 @@
+[![CI](https://github.com/hailsgav1/mtbc-speciation-nf/actions/workflows/ci.yml/badge.svg)](https://github.com/hailsgav1/mtbc-speciation-nf/actions/workflows/ci.yml)
 # mtbc-speciation-nf
 
 A Nextflow DSL2 pipeline for **zoonotic tuberculosis genomic surveillance** with
