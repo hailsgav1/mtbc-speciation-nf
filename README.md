@@ -17,9 +17,7 @@ independent signals and reconciles them, flagging disagreements for review.
 
 ## What it does
 
-```
 ![MTBC speciation pipeline](docs/pipeline.png)
-```
 
 1. **QC + trim** — FastQC, fastp
 2. **Map + call** — bwa-mem to *M. tuberculosis* H37Rv (`NC_000962.3`), bcftools
