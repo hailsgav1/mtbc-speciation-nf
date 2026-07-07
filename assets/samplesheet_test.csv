@@ -1,0 +1,2 @@
+sample,fastq_1,fastq_2,expected_species
+test_orygis,assets/test_data/tiny_1.fastq.gz,assets/test_data/tiny_2.fastq.gz,Mycobacterium_orygis

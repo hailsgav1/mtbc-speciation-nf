@@ -1,0 +1,4 @@
+sample,fastq_1,fastq_2,expected_species
+orygis_cattle_IN,/path/to/SRR9157804_1.fastq.gz,/path/to/SRR9157804_2.fastq.gz,Mycobacterium_orygis
+bovis_ref,/path/to/bovis_1.fastq.gz,/path/to/bovis_2.fastq.gz,Mycobacterium_bovis
+mtb_h37rv,/path/to/mtb_1.fastq.gz,/path/to/mtb_2.fastq.gz,Mycobacterium_tuberculosis

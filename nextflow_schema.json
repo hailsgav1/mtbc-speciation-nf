@@ -1,0 +1,48 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/hailsgav1/mtbc-speciation-nf/main/nextflow_schema.json",
+    "title": "mtbc-speciation-nf pipeline parameters",
+    "description": "Zoonotic TB genomic surveillance with full MTBC speciation",
+    "type": "object",
+    "definitions": {
+        "input_output": {
+            "title": "Input/output options",
+            "type": "object",
+            "required": ["input", "outdir"],
+            "properties": {
+                "input": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "description": "Path to samplesheet CSV (sample,fastq_1,fastq_2,expected_species)."
+                },
+                "outdir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Output directory.",
+                    "default": "results"
+                },
+                "reference": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "MTBC mapping reference FASTA (default: H37Rv NC_000962.3)."
+                }
+            }
+        },
+        "analysis": {
+            "title": "Analysis options",
+            "type": "object",
+            "properties": {
+                "run_phylo": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Build an IQ-TREE phylogeny for cohort surveillance."
+                }
+            }
+        }
+    },
+    "allOf": [
+        { "$ref": "#/definitions/input_output" },
+        { "$ref": "#/definitions/analysis" }
+    ]
+}
