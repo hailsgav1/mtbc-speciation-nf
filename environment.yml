@@ -1,0 +1,25 @@
+name: mtbc-speciation
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  # workflow + data fetching
+  - nextflow>=23.04
+  - sra-tools>=3.0
+  - ncbi-datasets-cli
+  # QC + alignment + variant calling
+  - fastqc
+  - fastp
+  - bwa
+  - samtools>=1.15
+  - bcftools>=1.15
+  # MTBC speciation + resistance
+  - tb-profiler
+  - mtb-snp-it        # provides the `snpit` command
+  # surveillance
+  - snp-dists
+  - iqtree
+  # reporting + scripting
+  - multiqc
+  - python>=3.9
+  # NOTE: RD-Analyzer is NOT on bioconda - installed separately (see docs/usage.md)
