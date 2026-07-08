@@ -13,14 +13,14 @@ process SNPIT {
     script:
     // SNP-IT assigns MTBC lineage/species from a whole-genome SNP barcode,
     // giving an independent second opinion to reconcile with RD-Analyzer.
+    // Command is snpit-run.py; -i takes a VCF aligned to H37Rv (NC000962).
     """
-    gzip -dc ${vcf} > ${meta.id}.vcf || cp ${vcf} ${meta.id}.vcf
-    snpit --input ${meta.id}.vcf > ${meta.id}.snpit.txt || \\
+    snpit-run.py -i ${vcf} -o ${meta.id}.snpit.txt || \\
         echo "${meta.id}\tunknown\tNA" > ${meta.id}.snpit.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        snpit: "1.1.0"
+        snpit: "1.1"
     END_VERSIONS
     """
 
