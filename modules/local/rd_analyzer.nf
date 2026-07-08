@@ -11,25 +11,34 @@ process RD_ANALYZER {
     path "versions.yml"              , emit: versions
 
     script:
-    // RD-Analyzer detects Regions of Difference (presence/absence) to place an
-    // isolate within the MTBC. e.g. M. orygis is confirmed by absence of
-    // RD7/RD8/RD9/RD10 with presence of RD1/RD4.
+    // RD-Analyzer (Python 2) detects Regions of Difference from reads using its
+    // own bundled RDs30.fasta, and writes <prefix>.result. Conda env is assigned
+    // per-process in conf/local.config (withName: RD_ANALYZER), so `python` and
+    // `RD-Analyzer.py` here are the env's Python 2 versions.
+    def r1 = reads[0]
+    def r2 = reads[1]
     """
-    RD-Analyzer.py -o ${meta.id} ${reads} || true
-    if [ ! -f ${meta.id}.rd.txt ]; then
-        echo "sample\t${meta.id}" > ${meta.id}.rd.txt
-        echo "note\tRD-Analyzer produced no output; check install" >> ${meta.id}.rd.txt
+    RD-Analyzer.py -o ${meta.id} ${r1} ${r2} || true
+
+    # RD-Analyzer writes ${meta.id}.result; normalise it to a *.rd.txt with a
+    # species_call line the summariser can parse.
+    if [ -f ${meta.id}.result ]; then
+        cp ${meta.id}.result ${meta.id}.rd.txt
+        species=\$(grep -i "Species" ${meta.id}.result | tail -n1 | awk -F'\\t' '{print \$NF}')
+        echo "species_call\t\${species}" >> ${meta.id}.rd.txt
+    else
+        printf 'sample\t%s\nspecies_call\tunknown\n' "${meta.id}" > ${meta.id}.rd.txt
     fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        rd-analyzer: "0.4"
+        rd-analyzer: "1.01"
     END_VERSIONS
     """
 
     stub:
     """
-    printf 'sample\t%s\nspecies_call\tMycobacterium_orygis\nRD1\tpresent\nRD4\tpresent\nRD9\tabsent\n' "${meta.id}" > ${meta.id}.rd.txt
+    printf 'sample\t%s\nspecies_call\tMycobacterium_orygis\nRD1\tpresent\nRD9\tabsent\n' "${meta.id}" > ${meta.id}.rd.txt
     touch versions.yml
     """
 }
