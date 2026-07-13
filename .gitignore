@@ -1,7 +1,26 @@
+# Nextflow
 work/
+.nextflow/
+.nextflow.log*
 results/
-.nextflow*
+results_*/
+
+# Reference + reads (regenerable)
+assets/H37Rv.fasta
 testdata/
+SRR*/
+bam/
+vcf/
+
+# NCBI datasets download artifacts (these overwrite README.md if unzipped in root!)
+ncbi_dataset/
+ncbi_dataset.zip
+md5sum.txt
+
+# Containers / caches
 *.sif
-*.pyc
+.apptainer_cache/
+
+# Python
 __pycache__/
+*.pyc
