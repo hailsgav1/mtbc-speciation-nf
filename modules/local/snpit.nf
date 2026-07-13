@@ -16,7 +16,7 @@ process SNPIT {
     // Command is snpit-run.py; -i takes a VCF aligned to H37Rv (NC000962).
     """
 snpit-run.py --input ${vcf} > ${meta.id}.snpit.txt 2>/dev/null || \\
-        echo "${meta.id}\tunknown\tNA" > ${meta.id}.snpit.txt
+        echo "sample\tunknown\tNA" > ${meta.id}.snpit.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
