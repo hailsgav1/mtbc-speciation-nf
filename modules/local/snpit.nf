@@ -15,7 +15,7 @@ process SNPIT {
     // giving an independent second opinion to reconcile with RD-Analyzer.
     // Command is snpit-run.py; -i takes a VCF aligned to H37Rv (NC000962).
     """
-    snpit-run.py -i ${vcf} -o ${meta.id}.snpit.txt || \\
+snpit-run.py --input ${vcf} > ${meta.id}.snpit.txt 2>/dev/null || \\
         echo "${meta.id}\tunknown\tNA" > ${meta.id}.snpit.txt
 
     cat <<-END_VERSIONS > versions.yml
