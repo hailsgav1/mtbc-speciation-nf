@@ -20,11 +20,11 @@ process RD_ANALYZER {
     """
     RD-Analyzer.py -o ${meta.id} ${r1} ${r2} || true
 
-    # RD-Analyzer writes ${meta.id}.result; normalise it to a *.rd.txt with a
-    # species_call line the summariser can parse.
-    if [ -f ${meta.id}.result ]; then
-        cp ${meta.id}.result ${meta.id}.rd.txt
-        species=\$(grep -i "Species" ${meta.id}.result | tail -n1 | awk -F'\\t' '{print \$NF}')
+# RD-Analyzer writes <prefix>.result with a "# Predicted lineage:" line.
+    result_file=\$(ls *.result 2>/dev/null | head -1)
+    if [ -n "\$result_file" ]; then
+        cp \$result_file ${meta.id}.rd.txt
+        species=\$(grep -i "Predicted lineage" \$result_file | sed 's/.*: *//' | awk '{print \$1}')
         echo "species_call\t\${species}" >> ${meta.id}.rd.txt
     else
         printf 'sample\t%s\nspecies_call\tunknown\n' "${meta.id}" > ${meta.id}.rd.txt
