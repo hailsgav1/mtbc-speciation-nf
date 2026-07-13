@@ -21,13 +21,13 @@ process RD_ANALYZER {
     RD-Analyzer.py -o ${meta.id} ${r1} ${r2} || true
 
 # RD-Analyzer writes <prefix>.result with a "# Predicted lineage:" line.
-    result_file=\$(ls *.result 2>/dev/null | head -1)
+result_file=\$(ls *.result 2>/dev/null | head -1)
     if [ -n "\$result_file" ]; then
         cp \$result_file ${meta.id}.rd.txt
-        species=\$(grep -i "Predicted lineage" \$result_file | sed 's/.*: *//' | awk '{print \$1}')
+        species=\$(grep -i "Predicted lineage" \$result_file | sed 's/.*lineage:[[:space:]]*//' | awk '{print \$1}')
         echo "species_call\t\${species}" >> ${meta.id}.rd.txt
     else
-        printf 'sample\t%s\nspecies_call\tunknown\n' "${meta.id}" > ${meta.id}.rd.txt
+        echo "species_call\tunknown" > ${meta.id}.rd.txt
     fi
 
     cat <<-END_VERSIONS > versions.yml
