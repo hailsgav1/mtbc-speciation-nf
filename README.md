@@ -27,6 +27,29 @@ independent signals and reconciles them, flagging disagreements for review.
 4. **Surveillance** — SNP-distance matrix and optional IQ-TREE phylogeny
 5. **Report** — MultiQC summary
 
+## Example result
+
+Validated on a real *M. orygis* isolate from dairy cattle (Chennai, India) —
+public accession [`SRR9157804`](https://www.ncbi.nlm.nih.gov/sra/SRR9157804),
+mapped to *M. tuberculosis* H37Rv (`NC_000962.3`).
+
+| Tool | Method | Call |
+|---|---|---|
+| TB-Profiler | SNP barcode + WHO catalogue (containerised) | *M. orygis* (lineage La3, 100%) |
+| SNP-IT | whole-genome SNP barcode | *M. orygis* (100%) |
+| RD-Analyzer | Regions of Difference (legacy) | *M. caprae* |
+| **Consensus** | **majority vote** | ***M. orygis*** *(agreement: conflict flagged)* |
+
+Two independent modern methods agree on *M. orygis*, while the older
+RD-based tool calls *M. caprae* — the exact animal-lineage ambiguity this
+pipeline is built to surface. The consensus reports *M. orygis* by majority
+**and** flags the disagreement rather than hiding it, so a reviewer sees both
+the call and the uncertainty.
+
+> This is why speciation is the core of the pipeline: a single tool can
+> confidently mis-call an emerging zoonotic agent. Cross-method consensus
+> catches it.
+
 ## Quick start
 
 ```bash
