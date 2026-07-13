@@ -14,10 +14,11 @@ include { MTBC_SPECIATION } from './workflows/mtbc_speciation.nf'
 
 workflow {
     MTBC_SPECIATION ()
+}
 
-    workflow.onComplete {
-        log.info ( workflow.success
-            ? "\nDone. Consensus species calls are in ${params.outdir}/speciation/consensus/\n"
-            : "\nPipeline failed. See the .nextflow.log for details.\n" )
-    }
+workflow.onComplete {
+    def where = "${params.outdir}/speciation/consensus/"
+    println ( workflow.success
+        ? "Done. Consensus species calls are in ${where}"
+        : "Pipeline failed - see .nextflow.log for details" )
 }
