@@ -50,16 +50,34 @@ the call and the uncertainty.
 > confidently mis-call an emerging zoonotic agent. Cross-method consensus
 > catches it.
 
+## Software environment
+
+A hybrid strategy keeps each tool in a working environment:
+
+- **Most processes** run from one conda env (`environment.yml`).
+- **RD-Analyzer** is a legacy Python 2 tool, so it runs in its own isolated
+  conda env (assigned per-process via `withName` in `conf/local.config`).
+- **TB-Profiler** runs from a Galaxy/BioContainers **Singularity image**, so its
+  database, Java, and snpEff are self-contained and version-matched — sidestepping
+  the fragile conda database build entirely.
+
 ## Quick start
 
 ```bash
 # 1. Test the wiring with no tools or data (stub run)
 nextflow run . -profile test -stub-run
 
-# 2. Fetch a small real test set (M. orygis cattle isolate, subsampled)
-bash bin/fetch_testdata.sh testdata
+# 2. Build the main env, plus a Python-2 env for RD-Analyzer
+conda env create -f environment.yml
+conda create -n rd-analyzer-env -c bioconda -c conda-forge rd-analyzer python=2.7 -y
 
-# 3. Run for real once tools are on PATH
+# 3. Fetch the reference + a real M. orygis isolate
+datasets download genome accession GCF_000195955.2 --include genome
+unzip -o ncbi_dataset.zip && cp ncbi_dataset/data/GCF_000195955.2/*.fna assets/H37Rv.fasta
+prefetch SRR9157804 && fasterq-dump --split-files SRR9157804 -O testdata && gzip testdata/*.fastq
+
+# 4. Run (conda for most tools, container for TB-Profiler, all wired in the local profile)
+conda activate mtbc-speciation
 nextflow run . -profile local \
   --input assets/samplesheet.csv \
   --reference assets/H37Rv.fasta \
@@ -95,16 +113,18 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
 | Profile | Executor | Notes |
 |---|---|---|
 | `test` | local | tiny bundled data, pair with `-stub-run` |
-| `local` | local | laptop / workstation |
-| `hpc` | SLURM | UA HPC; Apptainer block ready to enable |
+| `local` | local | conda + Singularity hybrid (validated on UA HPC) |
+| `hpc` | SLURM | per-process SLURM submission |
 | `cloud` | AWS Batch | **v2 stub** — see roadmap |
 
 ## Roadmap
 
 - [x] DSL2 modular pipeline, stub-testable in CI
 - [x] Full MTBC speciation with three-way consensus
-- [ ] Containerise each process (Docker/Apptainer) and wire into CI
+- [x] TB-Profiler containerised (Singularity) and validated on real data
+- [ ] Containerise the remaining processes and wire into CI
       (images will publish under `docker.io/biowizardhailey/mtbc-speciation-*`)
+- [ ] Wire in the cohort phylogeny (SNP alignment → IQ-TREE)
 - [ ] Enable the AWS Batch profile
 - [ ] `nextflow_schema.json` polish for Seqera Platform launch
 
@@ -113,6 +133,9 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
 - Virulent *M. bovis* and rarer members (*M. caprae*, *M. africanum*) have far
   fewer public genomes than *M. tuberculosis*, so a balanced full-panel test set
   is hard — the demo set may carry a single isolate for rare species.
+- RD-Analyzer (2015, RD-based) can call the *M. orygis* / *M. caprae* boundary
+  differently from modern barcode methods — the consensus step exists precisely
+  to surface this.
 - Drug-resistance calls follow the WHO mutation catalogue via TB-Profiler; the
   catalogue is periodically updated, so pin the TB-Profiler DB version you use.
 
