@@ -4,36 +4,34 @@ Reconcile three independent MTBC species signals into one consensus call.
 
 Inputs
 ------
---rd          RD-Analyzer output (Regions of Difference presence/absence)
---tbprofiler  TB-Profiler results.json (lineage / sub-lineage)
---snpit       SNP-IT output (SNP-barcode lineage/species call)
+--rd          RD-Analyzer output (has a `species_call` line we write in the module)
+--tbprofiler  TB-Profiler results.json (lineage / sub-lineage -> family)
+--snpit       SNP-IT output (SNP-barcode species/lineage call)
 
-The point of this step is to catch the well-documented failure mode where a
-single tool misidentifies an animal-adapted MTBC member -- most notably
-M. orygis being reported as M. bovis or M. tuberculosis. Where the three
+Catches the well-documented failure mode where a single tool misidentifies an
+animal-adapted MTBC member (e.g. M. orygis vs M. caprae vs M. bovis). Where the
 signals disagree, we surface the disagreement rather than silently picking one.
 """
 import argparse
 import json
-import os
 import re
 from collections import Counter
 
-# Canonical MTBC member names we normalise everything to.
 MTBC = {
-    "tuberculosis": "Mycobacterium_tuberculosis",
-    "bovis": "Mycobacterium_bovis",
     "orygis": "Mycobacterium_orygis",
     "caprae": "Mycobacterium_caprae",
+    "bovis": "Mycobacterium_bovis",
     "africanum": "Mycobacterium_africanum",
     "microti": "Mycobacterium_microti",
     "pinnipedii": "Mycobacterium_pinnipedii",
     "canettii": "Mycobacterium_canettii",
+    "tuberculosis": "Mycobacterium_tuberculosis",
 }
 
 
 def normalise(text):
-    """Map a free-text call onto a canonical MTBC member (or 'unknown')."""
+    """Map a single call string onto a canonical MTBC member (or 'unknown').
+    Order matters: check the specific animal clades before 'tuberculosis'."""
     if not text:
         return "unknown"
     t = text.lower()
@@ -44,42 +42,65 @@ def normalise(text):
 
 
 def parse_rd(path):
+    """Read ONLY the species_call line the RD module appends."""
     try:
         with open(path) as fh:
             for line in fh:
                 if line.lower().startswith("species_call"):
-                    return normalise(line.split("\t", 1)[1])
-            fh.seek(0)
-            return normalise(fh.read())
-    except (OSError, IndexError):
-        return "unknown"
+                    parts = line.rstrip("\n").split("\t")
+                    return normalise(parts[1]) if len(parts) > 1 else "unknown"
+    except OSError:
+        pass
+    return "unknown"
 
 
 def parse_tbprofiler(path):
+    """Read TB-Profiler JSON; prefer the explicit sub-lineage 'family' field."""
     try:
         with open(path) as fh:
             data = json.load(fh)
-        # TB-Profiler reports sub-lineage; animal lineages carry species hints.
-        for field in ("sublin", "sub_lineage", "main_lin", "lineage"):
-            if field in data and data[field]:
-                call = normalise(str(data[field]))
-                if call != "unknown":
-                    return call
-        return normalise(json.dumps(data))
     except (OSError, json.JSONDecodeError):
         return "unknown"
+    # TB-Profiler lineage entries carry a 'family' like 'M.orygis'
+    lineages = data.get("lineage") or data.get("sublin") or []
+    if isinstance(lineages, list):
+        for entry in lineages:
+            fam = entry.get("family") if isinstance(entry, dict) else None
+            if fam:
+                call = normalise(fam)
+                if call != "unknown":
+                    return call
+    for field in ("sublin", "main_lineage", "lineage"):
+        val = data.get(field)
+        if val:
+            call = normalise(str(val))
+            if call != "unknown":
+                return call
+    return "unknown"
 
 
 def parse_snpit(path):
+    """Read SNP-IT stdout. Format is a header line + a result line whose
+    'Species'/'Name' column holds the call. Parse only the data line, never
+    the whole file (so a sample name can't leak a false match)."""
     try:
         with open(path) as fh:
-            return normalise(fh.read())
+            lines = [l.rstrip("\n") for l in fh if l.strip()]
     except OSError:
         return "unknown"
+    if not lines:
+        return "unknown"
+    # SNP-IT prints a tab/space separated result; the species token is what we want.
+    # Skip an obvious header line if present.
+    data_lines = [l for l in lines if not l.lower().startswith(("sample", "#"))]
+    for l in data_lines:
+        call = normalise(l)
+        if call != "unknown":
+            return call
+    return "unknown"
 
 
 def reconcile(calls):
-    """Majority vote across non-unknown calls; report agreement level."""
     known = [c for c in calls if c != "unknown"]
     if not known:
         return "unknown", "none"
@@ -112,7 +133,6 @@ def main():
     header = ["sample", "rd_call", "tbprofiler_call", "snpit_call",
               "consensus", "agreement"]
     row = [args.sample, rd_call, tbp_call, snpit_call, consensus, agreement]
-
     with open(args.out, "w") as fh:
         fh.write("\t".join(header) + "\n")
         fh.write("\t".join(row) + "\n")
