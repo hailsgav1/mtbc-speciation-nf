@@ -11,12 +11,17 @@ process SNPIT {
     path "versions.yml"                 , emit: versions
 
     script:
-    // SNP-IT assigns MTBC lineage/species from a whole-genome SNP barcode,
-    // giving an independent second opinion to reconcile with RD-Analyzer.
-    // Command is snpit-run.py; -i takes a VCF aligned to H37Rv (NC000962).
+    // SNP-IT assigns MTBC lineage/species from a whole-genome SNP barcode.
+    // snpit-run.py needs an UNCOMPRESSED VCF aligned to H37Rv (NC000962).
+    // gzip -cdf handles both .vcf.gz and plain .vcf without erroring.
     """
-snpit-run.py --input ${vcf} > ${meta.id}.snpit.txt 2>/dev/null || \\
-        echo "sample\tunknown\tNA" > ${meta.id}.snpit.txt
+    gzip -cdf ${vcf} > ${meta.id}.input.vcf
+
+    if snpit-run.py --input ${meta.id}.input.vcf > ${meta.id}.snpit.txt; then
+        :
+    else
+        echo -e "sample\tunknown\tNA" > ${meta.id}.snpit.txt
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
