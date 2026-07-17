@@ -122,9 +122,13 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
 - [x] DSL2 modular pipeline, stub-testable in CI
 - [x] Full MTBC speciation with three-way consensus
 - [x] TB-Profiler containerised (Singularity) and validated on real data
+- [ ] **Replace RD-Analyzer** with a coverage-based RD caller using the curated
+      RDscan panel (Bespiatykh et al. 2021) — proof-of-method in [`rd_test/`](rd_test/)
+- [ ] Add host/date/location metadata and a mixed human + animal cohort
+- [ ] Wire in the cohort phylogeny (SNP alignment → IQ-TREE)
+- [ ] Microreact export (tree + metadata)
 - [ ] Containerise the remaining processes and wire into CI
       (images will publish under `docker.io/biowizardhailey/mtbc-speciation-*`)
-- [ ] Wire in the cohort phylogeny (SNP alignment → IQ-TREE)
 - [ ] Enable the AWS Batch profile
 - [ ] `nextflow_schema.json` polish for Seqera Platform launch
 
@@ -133,9 +137,12 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
 - Virulent *M. bovis* and rarer members (*M. caprae*, *M. africanum*) have far
   fewer public genomes than *M. tuberculosis*, so a balanced full-panel test set
   is hard — the demo set may carry a single isolate for rare species.
-- RD-Analyzer (2015, RD-based) can call the *M. orygis* / *M. caprae* boundary
-  differently from modern barcode methods — the consensus step exists precisely
-  to surface this.
+- RD-Analyzer's 30-region panel contains **no *M. orygis* marker**, so it calls
+  this isolate *M. caprae* — it cannot report a species it has no region for.
+  The curated RDscan panel does contain orygis regions (`RDoryx_1`, `RD12oryx`,
+  `RDoryx_4`), and coverage analysis confirms `RDoryx_1` is cleanly deleted here
+  (1/9562 positions) — see [`rd_test/`](rd_test/). This vocabulary gap is exactly
+  what the pipeline exists to expose, and why RD-Analyzer is being replaced.
 - Drug-resistance calls follow the WHO mutation catalogue via TB-Profiler; the
   catalogue is periodically updated, so pin the TB-Profiler DB version you use.
 
