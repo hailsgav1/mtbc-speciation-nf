@@ -122,17 +122,24 @@ def main():
     ap.add_argument("--tbprofiler", required=True)
     ap.add_argument("--snpit", required=True)
     ap.add_argument("--out", required=True)
+    # optional metadata (default NA so older samplesheets still work)
+    ap.add_argument("--host", default="NA")
+    ap.add_argument("--date", default="NA")
+    ap.add_argument("--country", default="NA")
+    ap.add_argument("--location", default="NA")
     args = ap.parse_args()
 
     rd_call = parse_rd(args.rd)
     tbp_call = parse_tbprofiler(args.tbprofiler)
     snpit_call = parse_snpit(args.snpit)
-
     consensus, agreement = reconcile([rd_call, tbp_call, snpit_call])
 
-    header = ["sample", "rd_call", "tbprofiler_call", "snpit_call",
+    header = ["sample", "host", "collection_date", "country", "location",
+              "rd_call", "tbprofiler_call", "snpit_call",
               "consensus", "agreement"]
-    row = [args.sample, rd_call, tbp_call, snpit_call, consensus, agreement]
+    row = [args.sample, args.host, args.date, args.country, args.location,
+           rd_call, tbp_call, snpit_call, consensus, agreement]
+
     with open(args.out, "w") as fh:
         fh.write("\t".join(header) + "\n")
         fh.write("\t".join(row) + "\n")
