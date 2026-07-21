@@ -12,13 +12,18 @@ process SPECIATION_SUMMARY {
 
     script:
     // Reconcile the three independent species signals into one confident call
-    // and flag disagreements (the M. bovis / M. orygis confusion problem).
+    // and flag disagreements. Sample metadata is passed through to the output
+    // so the consensus TSV is Microreact-ready.
     """
     speciation_summary.py \\
         --sample ${meta.id} \\
         --rd ${rd} \\
         --tbprofiler ${tbprofiler_json} \\
         --snpit ${snpit} \\
+        --host '${meta.host}' \\
+        --date '${meta.date}' \\
+        --country '${meta.country}' \\
+        --location '${meta.location}' \\
         --out ${meta.id}.consensus.tsv
 
     cat <<-END_VERSIONS > versions.yml
@@ -29,7 +34,7 @@ process SPECIATION_SUMMARY {
 
     stub:
     """
-    printf 'sample\trd_call\ttbprofiler_call\tsnpit_call\tconsensus\tagreement\n%s\tM.orygis\tM.orygis\tM.orygis\tMycobacterium_orygis\tfull\n' "${meta.id}" > ${meta.id}.consensus.tsv
+    printf 'sample\thost\tcollection_date\tcountry\tlocation\trd_call\ttbprofiler_call\tsnpit_call\tconsensus\tagreement\n%s\tNA\tNA\tNA\tNA\tM.orygis\tM.orygis\tM.orygis\tMycobacterium_orygis\tfull\n' "${meta.id}" > ${meta.id}.consensus.tsv
     touch versions.yml
     """
 }
