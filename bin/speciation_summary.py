@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """
-Reconcile three independent MTBC species signals into one consensus call.
+Reconcile independent MTBC species signals into one consensus call.
 
 Inputs
 ------
---rd          RD-Analyzer output (has a `species_call` line we write in the module)
+--rd          RD-Analyzer output (legacy; shown for comparison, NOT voted)
+--rd_regions  Curated RD-panel classifier (Bespiatykh 2021) — species_call line
 --tbprofiler  TB-Profiler results.json (lineage / sub-lineage -> family)
 --snpit       SNP-IT output (SNP-barcode species/lineage call)
 
-Catches the well-documented failure mode where a single tool misidentifies an
-animal-adapted MTBC member (e.g. M. orygis vs M. caprae vs M. bovis). Where the
-signals disagree, we surface the disagreement rather than silently picking one.
+The consensus vote uses RD_REGIONS + TB-Profiler + SNP-IT. Legacy RD-Analyzer
+is reported in its own column for before/after comparison but does not vote,
+since it lacks an M. orygis marker and systematically mis-calls it as M. caprae.
+Where signals disagree, we surface the disagreement rather than silently
+picking one.
 """
 import argparse
 import json
@@ -42,13 +45,27 @@ def normalise(text):
 
 
 def parse_rd(path):
-    """Read ONLY the species_call line the RD module appends."""
+    """Read ONLY the species_call line the RD-Analyzer module appends."""
     try:
         with open(path) as fh:
             for line in fh:
                 if line.lower().startswith("species_call"):
                     parts = line.rstrip("\n").split("\t")
                     return normalise(parts[1]) if len(parts) > 1 else "unknown"
+    except OSError:
+        pass
+    return "unknown"
+
+
+def parse_rd_regions(path):
+    """Read the RD_REGIONS classifier output: line 2, column 2 is the call."""
+    try:
+        with open(path) as fh:
+            lines = [l for l in fh if l.strip() and not l.startswith("#")]
+        if len(lines) >= 2:
+            cols = lines[1].rstrip("\n").split("\t")
+            if len(cols) >= 2:
+                return normalise(cols[1])
     except OSError:
         pass
     return "unknown"
@@ -119,6 +136,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sample", required=True)
     ap.add_argument("--rd", required=True)
+    ap.add_argument("--rd_regions", required=True)
     ap.add_argument("--tbprofiler", required=True)
     ap.add_argument("--snpit", required=True)
     ap.add_argument("--out", required=True)
@@ -129,16 +147,20 @@ def main():
     ap.add_argument("--location", default="NA")
     args = ap.parse_args()
 
-    rd_call = parse_rd(args.rd)
-    tbp_call = parse_tbprofiler(args.tbprofiler)
+    rd_call    = parse_rd(args.rd)
+    rdreg_call = parse_rd_regions(args.rd_regions)
+    tbp_call   = parse_tbprofiler(args.tbprofiler)
     snpit_call = parse_snpit(args.snpit)
-    consensus, agreement = reconcile([rd_call, tbp_call, snpit_call])
+
+    # Consensus vote: curated RD panel + TB-Profiler + SNP-IT.
+    # Legacy RD-Analyzer is reported for comparison but NOT voted (being retired).
+    consensus, agreement = reconcile([rdreg_call, tbp_call, snpit_call])
 
     header = ["sample", "host", "collection_date", "country", "location",
-              "rd_call", "tbprofiler_call", "snpit_call",
-              "consensus", "agreement"]
+              "rd_analyzer_call", "rd_regions_call", "tbprofiler_call",
+              "snpit_call", "consensus", "agreement"]
     row = [args.sample, args.host, args.date, args.country, args.location,
-           rd_call, tbp_call, snpit_call, consensus, agreement]
+           rd_call, rdreg_call, tbp_call, snpit_call, consensus, agreement]
 
     with open(args.out, "w") as fh:
         fh.write("\t".join(header) + "\n")
@@ -146,7 +168,7 @@ def main():
 
     if agreement == "conflict":
         print(f"[WARN] {args.sample}: species calls disagree "
-              f"(RD={rd_call}, TB-Profiler={tbp_call}, SNP-IT={snpit_call}). "
+              f"(RD-regions={rdreg_call}, TB-Profiler={tbp_call}, SNP-IT={snpit_call}). "
               f"Manual review recommended.")
 
 
