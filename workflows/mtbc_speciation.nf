@@ -23,7 +23,7 @@ workflow MTBC_SPECIATION {
     ch_versions = ch_versions.mix( MAP_AND_CALL.out.versions )
 
     // 4. MTBC speciation core (RD + TB-Profiler + SNP-IT -> consensus)
-    SPECIATE ( QC_TRIM.out.reads, MAP_AND_CALL.out.vcf )
+SPECIATE ( QC_TRIM.out.reads, MAP_AND_CALL.out.vcf )
     ch_versions = ch_versions.mix( SPECIATE.out.versions )
 
     // 5. aggregate report
