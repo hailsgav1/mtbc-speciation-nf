@@ -4,20 +4,18 @@ process SPECIATION_SUMMARY {
     publishDir "${params.outdir}/speciation/consensus", mode: params.publish_dir_mode
 
     input:
-    tuple val(meta), path(rd), path(tbprofiler_json), path(snpit)
+    tuple val(meta), path(rd), path(rd_regions), path(tbprofiler_json), path(snpit)
 
     output:
     tuple val(meta), path("*.consensus.tsv"), emit: consensus
     path "versions.yml"                     , emit: versions
 
     script:
-    // Reconcile the three independent species signals into one confident call
-    // and flag disagreements. Sample metadata is passed through to the output
-    // so the consensus TSV is Microreact-ready.
     """
     speciation_summary.py \\
         --sample ${meta.id} \\
         --rd ${rd} \\
+        --rd_regions ${rd_regions} \\
         --tbprofiler ${tbprofiler_json} \\
         --snpit ${snpit} \\
         --host '${meta.host}' \\
@@ -34,7 +32,7 @@ process SPECIATION_SUMMARY {
 
     stub:
     """
-    printf 'sample\thost\tcollection_date\tcountry\tlocation\trd_call\ttbprofiler_call\tsnpit_call\tconsensus\tagreement\n%s\tNA\tNA\tNA\tNA\tM.orygis\tM.orygis\tM.orygis\tMycobacterium_orygis\tfull\n' "${meta.id}" > ${meta.id}.consensus.tsv
+    printf 'sample\thost\tcollection_date\tcountry\tlocation\trd_analyzer_call\trd_regions_call\ttbprofiler_call\tsnpit_call\tconsensus\tagreement\n%s\tNA\tNA\tNA\tNA\tM.caprae\tMycobacterium_orygis\tMycobacterium_orygis\tMycobacterium_orygis\tMycobacterium_orygis\tmajority\n' "${meta.id}" > ${meta.id}.consensus.tsv
     touch versions.yml
     """
 }
