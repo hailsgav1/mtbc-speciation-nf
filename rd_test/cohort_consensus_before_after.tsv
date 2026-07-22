@@ -1,0 +1,4 @@
+sample	host	collection_date	country	location	rd_analyzer_call	rd_regions_call	tbprofiler_call	snpit_call	consensus	agreement
+orygis_cattle_IN	Bos taurus	2019	India	Chennai	Mycobacterium_caprae	Mycobacterium_orygis	Mycobacterium_orygis	Mycobacterium_orygis	Mycobacterium_orygis	full
+sample	host	collection_date	country	location	rd_analyzer_call	rd_regions_call	tbprofiler_call	snpit_call	consensus	agreement
+orygis_human_CA	Homo sapiens	2022	Canada	Alberta	Mycobacterium_caprae	Mycobacterium_orygis	Mycobacterium_orygis	Mycobacterium_orygis	Mycobacterium_orygis	full
