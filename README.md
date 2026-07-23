@@ -144,12 +144,14 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
 ## Roadmap
 
 - [x] DSL2 modular pipeline, stub-testable in CI
-- [x] Full MTBC speciation with three-way consensus
 - [x] TB-Profiler containerised (Singularity) and validated on real data
-- [ ] **Replace RD-Analyzer** with a coverage-based RD caller using the curated
-      RDscan panel (Bespiatykh et al. 2021) — proof-of-method in [`rd_test/`](rd_test/)
-- [ ] Add host/date/location metadata and a mixed human + animal cohort
-- [ ] Wire in the cohort phylogeny (SNP alignment → IQ-TREE)
+- [x] Host/date/location metadata carried through to the consensus output
+- [x] Mixed human + animal cohort
+- [x] **RD-Analyzer replaced** by `RD_REGIONS`, a coverage-based caller over the
+      curated RDscan panel (Bespiatykh et al. 2021) — validated 4/4 across
+      *M. orygis*, *M. bovis*, and *M. tuberculosis*
+- [ ] Cohort phylogeny: masked SNP alignment → `snp-dists` → IQ-TREE, with
+      published transmission thresholds (3–14 SNPs animal, 0–6 SNPs single-source)
 - [ ] Microreact export (tree + metadata)
 - [ ] Containerise the remaining processes and wire into CI
       (images will publish under `docker.io/biowizardhailey/mtbc-speciation-*`)
