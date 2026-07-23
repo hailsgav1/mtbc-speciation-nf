@@ -8,7 +8,8 @@ Most TB pipelines predict drug resistance well but treat species assignment as a
 afterthought — which is exactly why animal-adapted members like ***Mycobacterium
 orygis*** are routinely misreported as *M. bovis* or *M. tuberculosis*. This
 pipeline puts **MTBC speciation at the centre**: it calls the species from three
-independent signals and reconciles them, flagging disagreements for review.
+methodologically independent signals — regions of difference, SNP barcode, and
+lineage typing — and reconciles them, flagging disagreements for review.
 
 > Built as a One Health surveillance tool — the kind of workflow an animal- or
 > public-health reference lab actually runs. *M. orygis* is an emerging,
@@ -21,9 +22,11 @@ independent signals and reconciles them, flagging disagreements for review.
 
 1. **QC + trim** — FastQC, fastp
 2. **Map + call** — bwa-mem to *M. tuberculosis* H37Rv (`NC_000962.3`), bcftools
-3. **Speciate (the core)** — RD-Analyzer (Regions of Difference), TB-Profiler
-   (sub-lineage + drug resistance vs the WHO catalogue), SNP-IT (SNP barcode),
-   reconciled into one consensus call by `bin/speciation_summary.py`
+3. **Speciate (the core)** — `RD_REGIONS` (coverage over the curated RDscan
+   Regions-of-Difference panel), TB-Profiler (sub-lineage + drug resistance vs
+   the WHO catalogue), SNP-IT (SNP barcode), reconciled into one consensus call
+   by `bin/speciation_summary.py`. Legacy RD-Analyzer is still run and reported
+   for comparison, but does not vote.
 4. **Surveillance** — SNP-distance matrix and optional IQ-TREE phylogeny
 5. **Report** — MultiQC summary
 
@@ -62,8 +65,10 @@ orygis-specific regions **RD301** and **RD315** directly, with *M. caprae*
 A hybrid strategy keeps each tool in a working environment:
 
 - **Most processes** run from one conda env (`environment.yml`).
-- **RD-Analyzer** is a legacy Python 2 tool, so it runs in its own isolated
-  conda env (assigned per-process via `withName` in `conf/local.config`).
+- **`RD_REGIONS`** needs only samtools + Python from the main env; the RD panel
+  (`assets/RD.bed`) is vendored from RDscan (Bespiatykh et al. 2021, CC BY 4.0).
+- **RD-Analyzer** (legacy, comparison only) is a Python 2 tool, so it runs in its
+  own isolated conda env (assigned per-process via `withName` in `conf/local.config`).
 - **TB-Profiler** runs from a Galaxy/BioContainers **Singularity image**, so its
   database, Java, and snpEff are self-contained and version-matched — sidestepping
   the fragile conda database build entirely.
@@ -93,11 +98,13 @@ nextflow run . -profile local \
 
 ## Input
 
-A CSV samplesheet:
+A CSV samplesheet. `host`, `collection_date`, `country` and `location` are
+optional (default `NA`) and are carried through to the consensus output:
 
 ```csv
-sample,fastq_1,fastq_2,expected_species
-orygis_cattle_IN,SRR9157804_1.fastq.gz,SRR9157804_2.fastq.gz,Mycobacterium_orygis
+sample,fastq_1,fastq_2,host,collection_date,country,location,expected_species
+orygis_cattle_IN,testdata/SRR9157804_1.fastq.gz,testdata/SRR9157804_2.fastq.gz,Bos taurus,2019,India,Chennai,Mycobacterium_orygis
+orygis_human_CA,testdata/SRR23445127_1.fastq.gz,testdata/SRR23445127_2.fastq.gz,Homo sapiens,2022,Canada,Alberta,Mycobacterium_orygis
 ```
 
 `expected_species` is optional and only used to cross-check the consensus call.
@@ -120,8 +127,8 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
 | Profile | Executor | Notes |
 |---|---|---|
 | `test` | local | tiny bundled data, pair with `-stub-run` |
-| `local` | local | conda + Singularity hybrid (validated on UA HPC) |
-| `hpc` | SLURM | per-process SLURM submission |
+| `local` | local | conda + Singularity hybrid — **this is the validated path** (all results above were produced with it, on a UA HPC compute node) |
+| `hpc` | SLURM | per-process SLURM submission — scaffolded but **untested**; needs an allocation account set in `conf/hpc.config` |
 | `cloud` | AWS Batch | **v2 stub** — see roadmap |
 
 ## Roadmap
@@ -147,11 +154,15 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
   fewer public genomes than *M. tuberculosis*, so a balanced full-panel test set
   is hard — the demo set may carry a single isolate for rare species.
 - RD-Analyzer's 30-region panel contains **no *M. orygis* marker**, so it calls
-  this isolate *M. caprae* — it cannot report a species it has no region for.
-  The curated RDscan panel does contain orygis regions (`RDoryx_1`, `RD12oryx`,
-  `RDoryx_4`), and coverage analysis confirms `RDoryx_1` is cleanly deleted here
-  (1/9562 positions) — see [`rd_test/`](rd_test/). This vocabulary gap is exactly
-  what the pipeline exists to expose, and why RD-Analyzer is being replaced.
+  both orygis isolates *M. caprae* — it cannot report a species it has no region
+  for. `RD_REGIONS` uses the curated RDscan panel and keys on **RD301** and
+  **RD315**, the orygis-specific regions (PCR-validated by Kumar et al. 2023),
+  with *M. caprae* (RD305) and *M. bovis* (RD4, RDbovis) as explicit exclusions.
+  It deliberately does **not** use `RDoryx_1`, `RD12oryx` or `RDoryx_4`:
+  Bespiatykh et al. report RDoryx_1 deleted in only 25/32 *M. orygis* and prone
+  to false coverage calls, and the RD12 locus is a nest of overlapping
+  annotations (RD12 ⊂ RD12oryx ⊂ RDcan) that produces phantom partial signals.
+  Working notes and coverage output are in [`rd_test/`](rd_test/).
 - Drug-resistance calls follow the WHO mutation catalogue via TB-Profiler; the
   catalogue is periodically updated, so pin the TB-Profiler DB version you use.
 
