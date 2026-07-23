@@ -1,4 +1,5 @@
 sample,fastq_1,fastq_2,host,collection_date,country,location,expected_species
-orygis_cattle_IN,SRR9157804_1.fastq.gz,SRR9157804_2.fastq.gz,Bos taurus,2019,India,Chennai,Mycobacterium_orygis
-orygis_human_CA,human1_1.fastq.gz,human1_2.fastq.gz,Homo sapiens,2022,Canada,Quebec,Mycobacterium_orygis
-mtb_human,mtb_1.fastq.gz,mtb_2.fastq.gz,Homo sapiens,2021,NA,NA,Mycobacterium_tuberculosis
+orygis_cattle_IN,testdata/SRR9157804_1.fastq.gz,testdata/SRR9157804_2.fastq.gz,Bos taurus,2019,India,Chennai,Mycobacterium_orygis
+orygis_human_CA,testdata/SRR23445127_1.fastq.gz,testdata/SRR23445127_2.fastq.gz,Homo sapiens,2022,Canada,Alberta,Mycobacterium_orygis
+bovis_ERR016861,testdata/ERR016861_1.fastq.gz,testdata/ERR016861_2.fastq.gz,NA,NA,NA,NA,Mycobacterium_bovis
+mtb_DRR019437,testdata/DRR019437_1.fastq.gz,testdata/DRR019437_2.fastq.gz,Homo sapiens,NA,Japan,NA,Mycobacterium_tuberculosis
