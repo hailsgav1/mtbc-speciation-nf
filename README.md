@@ -29,26 +29,33 @@ independent signals and reconciles them, flagging disagreements for review.
 
 ## Example result
 
-Validated on a real *M. orygis* isolate from dairy cattle (Chennai, India) —
-public accession [`SRR9157804`](https://www.ncbi.nlm.nih.gov/sra/SRR9157804),
-mapped to *M. tuberculosis* H37Rv (`NC_000962.3`).
+Validated on four public isolates spanning three MTBC species, two hosts, and
+three continents. All calls are from a single pipeline run; raw output is in
+[`rd_test/validation_4species.tsv`](rd_test/validation_4species.tsv).
 
-| Tool | Method | Call |
-|---|---|---|
-| TB-Profiler | SNP barcode + WHO catalogue (containerised) | *M. orygis* (lineage La3, 100%) |
-| SNP-IT | whole-genome SNP barcode | *M. orygis* (100%) |
-| RD-Analyzer | Regions of Difference (legacy) | *M. caprae* |
-| **Consensus** | **majority vote** | ***M. orygis*** *(agreement: conflict flagged)* |
+| Isolate | Host / origin | RD-Analyzer *(legacy)* | **RD_REGIONS** *(this pipeline)* | TB-Profiler | SNP-IT | Consensus |
+|---|---|---|---|---|---|---|
+| [`SRR9157804`](https://www.ncbi.nlm.nih.gov/sra/SRR9157804) | *Bos taurus*, India | ❌ *M. caprae* | ✅ ***M. orygis*** | *M. orygis* | *M. orygis* | *M. orygis* (full) |
+| [`SRR23445127`](https://www.ncbi.nlm.nih.gov/sra/SRR23445127) | *Homo sapiens*, Canada | ❌ *M. caprae* | ✅ ***M. orygis*** | *M. orygis* | *M. orygis* | *M. orygis* (full) |
+| [`ERR016861`](https://www.ebi.ac.uk/ena/browser/view/ERR016861) | *M. bovis* | ✅ *M. bovis* | ✅ ***M. bovis*** | *M. bovis* | *M. bovis* | *M. bovis* (full) |
+| [`DRR019437`](https://www.ncbi.nlm.nih.gov/sra/DRR019437) | *Homo sapiens*, Japan | ✅ *M. tuberculosis* | ✅ ***M. tuberculosis*** | *M. tuberculosis* | *M. tuberculosis* | *M. tuberculosis* (full) |
 
-Two independent modern methods agree on *M. orygis*, while the older
-RD-based tool calls *M. caprae* — the exact animal-lineage ambiguity this
-pipeline is built to surface. The consensus reports *M. orygis* by majority
-**and** flags the disagreement rather than hiding it, so a reviewer sees both
-the call and the uncertainty.
+**RD_REGIONS: 4/4. RD-Analyzer: 3/4 — wrong only on *M. orygis*.**
 
-> This is why speciation is the core of the pipeline: a single tool can
-> confidently mis-call an emerging zoonotic agent. Cross-method consensus
-> catches it.
+That asymmetry is the point. RD-Analyzer is not a broken tool: it calls
+*M. bovis* and *M. tuberculosis* correctly. It fails on *M. orygis* specifically,
+because its 30-region panel contains **no orygis marker** — so it silently
+reports the nearest species it is able to name. Both orygis isolates, from
+different hosts and continents, fail the same way.
+
+Replacing it with a coverage-based caller over the curated RDscan panel
+(Bespiatykh et al. 2021) resolves this: `RD_REGIONS` interrogates the
+orygis-specific regions **RD301** and **RD315** directly, with *M. caprae*
+(RD305) and *M. bovis* (RD4, RDbovis) as explicit exclusions.
+
+> This is the pipeline's reason for existing: an emerging zoonotic agent can be
+> confidently mis-called by a tool that simply has no name for it, and the error
+> is invisible without a second, methodologically independent signal.
 
 ## Software environment
 
