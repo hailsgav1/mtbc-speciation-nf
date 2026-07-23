@@ -57,23 +57,6 @@ orygis-specific regions **RD301** and **RD315** directly, with *M. caprae*
 > confidently mis-called by a tool that simply has no name for it, and the error
 > is invisible without a second, methodologically independent signal.
 
-**RD_REGIONS: 4/4. RD-Analyzer: 3/4 — wrong only on *M. orygis*.**
-
-That asymmetry is the point. RD-Analyzer is not a broken tool: it calls
-*M. bovis* and *M. tuberculosis* correctly. It fails on *M. orygis* specifically,
-because its 30-region panel contains **no orygis marker** — so it silently
-reports the nearest species it is able to name. Both orygis isolates, from
-different hosts and continents, fail the same way.
-
-Replacing it with a coverage-based caller over the curated RDscan panel
-(Bespiatykh et al. 2021) resolves this: `RD_REGIONS` interrogates the
-orygis-specific regions **RD301** and **RD315** directly, with *M. caprae*
-(RD305) and *M. bovis* (RD4, RDbovis) as explicit exclusions.
-
-> This is the pipeline's reason for existing: an emerging zoonotic agent can be
-> confidently mis-called by a tool that simply has no name for it, and the error
-> is invisible without a second, methodologically independent signal.
-
 ## Software environment
 
 A hybrid strategy keeps each tool in a working environment:
