@@ -72,28 +72,52 @@ A hybrid strategy keeps each tool in a working environment:
 - **TB-Profiler** runs from a Galaxy/BioContainers **Singularity image**, so its
   database, Java, and snpEff are self-contained and version-matched — sidestepping
   the fragile conda database build entirely.
-
 ## Quick start
 
 ```bash
-# 1. Test the wiring with no tools or data (stub run)
+# 1. Test the wiring — no tools, no data, no containers needed
 nextflow run . -profile test -stub-run
 
-# 2. Build the main env, plus a Python-2 env for RD-Analyzer
+# 2. Build the environments
+#    Main env: everything except the legacy RD-Analyzer comparison step.
 conda env create -f environment.yml
+#    Python-2 env: only needed for the legacy RD_ANALYZER comparison column.
 conda create -n rd-analyzer-env -c bioconda -c conda-forge rd-analyzer python=2.7 -y
+#    TB-Profiler runs from a Singularity image, pulled automatically on first run,
+#    so Apptainer/Singularity must be available.
 
-# 3. Fetch the reference + a real M. orygis isolate
+# 3. Fetch the H37Rv reference and one real M. orygis isolate
 datasets download genome accession GCF_000195955.2 --include genome
-unzip -o ncbi_dataset.zip && cp ncbi_dataset/data/GCF_000195955.2/*.fna assets/H37Rv.fasta
-prefetch SRR9157804 && fasterq-dump --split-files SRR9157804 -O testdata && gzip testdata/*.fastq
+unzip -o ncbi_dataset.zip
+cp ncbi_dataset/data/GCF_000195955.2/*.fna assets/H37Rv.fasta
+prefetch SRR9157804
+fasterq-dump --split-files SRR9157804 -O testdata
+gzip testdata/SRR9157804_*.fastq
 
-# 4. Run (conda for most tools, container for TB-Profiler, all wired in the local profile)
+# 4. Point a samplesheet at it
+cat > assets/samplesheet_quickstart.csv <<'EOF'
+sample,fastq_1,fastq_2,host,collection_date,country,location,expected_species
+orygis_cattle_IN,testdata/SRR9157804_1.fastq.gz,testdata/SRR9157804_2.fastq.gz,Bos taurus,2019,India,Chennai,Mycobacterium_orygis
+EOF
+
+# 5. Run
 conda activate mtbc-speciation
 nextflow run . -profile local \
-  --input assets/samplesheet.csv \
+  --input assets/samplesheet_quickstart.csv \
   --reference assets/H37Rv.fasta \
   --outdir results
+
+# 6. The headline output
+cat results/speciation/consensus/*.consensus.tsv | column -t -s$'\t'
+```
+
+`conf/local.config` expects the two conda envs at `$HOME/.conda/envs/mtbc-speciation`
+and `$HOME/.conda/envs/rd-analyzer-env`; edit the `params.main_env` / `params.rd_env`
+defaults there if yours live elsewhere. On a cluster, run this from a compute node
+rather than the login node.
+
+To reproduce the four-isolate validation above, use `assets/samplesheet_validation.csv`
+after fetching `SRR23445127`, `ERR016861` and `DRR019437` the same way.
 ```
 
 ## Input
