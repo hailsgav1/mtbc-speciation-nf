@@ -72,6 +72,7 @@ A hybrid strategy keeps each tool in a working environment:
 - **TB-Profiler** runs from a Galaxy/BioContainers **Singularity image**, so its
   database, Java, and snpEff are self-contained and version-matched — sidestepping
   the fragile conda database build entirely.
+  
 ## Quick start
 
 ```bash
@@ -118,7 +119,20 @@ rather than the login node.
 
 To reproduce the four-isolate validation above, use `assets/samplesheet_validation.csv`
 after fetching `SRR23445127`, `ERR016861` and `DRR019437` the same way.
+
+
+## Input
+
+A CSV samplesheet. `host`, `collection_date`, `country` and `location` are
+optional (default `NA`) and are carried through to the consensus output:
+
+```csv
+sample,fastq_1,fastq_2,host,collection_date,country,location,expected_species
+orygis_cattle_IN,testdata/SRR9157804_1.fastq.gz,testdata/SRR9157804_2.fastq.gz,Bos taurus,2019,India,Chennai,Mycobacterium_orygis
+orygis_human_CA,testdata/SRR23445127_1.fastq.gz,testdata/SRR23445127_2.fastq.gz,Homo sapiens,2022,Canada,Alberta,Mycobacterium_orygis
 ```
+
+`expected_species` is optional and only used to cross-check the consensus call.
 
 ## Test data (verified public accessions)
 
