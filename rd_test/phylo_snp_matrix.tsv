@@ -1,0 +1,5 @@
+snp-dists 1.2.0	bovis_ERR016861	mtb_DRR019437	orygis_cattle_IN	orygis_human_CA
+bovis_ERR016861	0	2183	2164	2110
+mtb_DRR019437	2183	0	2383	2319
+orygis_cattle_IN	2164	2383	0	254
+orygis_human_CA	2110	2319	254	0
