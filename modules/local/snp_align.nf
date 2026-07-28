@@ -4,8 +4,8 @@ process SNP_ALIGN {
     publishDir "${params.outdir}/phylo", mode: params.publish_dir_mode
 
     input:
-    path fastas       // all per-sample consensus FASTAs
-    path mask         // BED of regions to exclude (PE/PPE, IS, etc.)
+    path fastas       // per-sample consensus FASTAs (contig = NC_000962.3), staged as name_*.fasta
+    path mask         // BED of regions to exclude (contig = NC_000962.3)
 
     output:
     path "core_snps.aln", emit: alignment
@@ -15,28 +15,25 @@ process SNP_ALIGN {
     params.run_phylo
 
     script:
-    // Concatenate per-sample pseudo-genomes into a whole-genome alignment,
-    // mask repetitive/unreliable regions, then extract variable (SNP) sites.
-    // Masking is essential for MTBC: PE/PPE and IS elements produce spurious
-    // variants that inflate SNP distances if left in.
+    // For each sample: mask repetitive regions (while contig name still matches
+    // the BED), then rename the record to the sample id. Concatenate all into a
+    // whole-genome alignment and extract variable sites with snp-sites.
     """
-    # combine all per-sample pseudo-genomes into one multi-FASTA alignment
-    cat ${fastas} > whole_genome.aln
+    for fa in ${fastas}; do
+        sample=\$(basename \$fa .consensus.fasta)
+        bedtools maskfasta -fi \$fa -bed ${mask} -fo \${sample}.masked.fa
+        # rename the single record to the sample id
+        echo ">\${sample}" > \${sample}.renamed.fa
+        grep -v "^>" \${sample}.masked.fa >> \${sample}.renamed.fa
+    done
 
-    # mask: set masked positions to N across all samples using bedtools
-    if [ -s "${mask}" ]; then
-        bedtools maskfasta -fi whole_genome.aln -bed ${mask} -fo whole_genome.masked.aln 2>/dev/null \\
-            || cp whole_genome.aln whole_genome.masked.aln
-    else
-        cp whole_genome.aln whole_genome.masked.aln
-    fi
-
-    # extract only variable sites -> core SNP alignment for the tree
-    snp-sites -o core_snps.aln whole_genome.masked.aln
+    cat *.renamed.fa > whole_genome.aln
+    snp-sites -o core_snps.aln whole_genome.aln
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         snp-sites: \$(snp-sites -V 2>&1 | sed 's/snp-sites //')
+        bedtools: \$(bedtools --version | sed 's/bedtools //')
     END_VERSIONS
     """
 
