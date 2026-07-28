@@ -8,28 +8,20 @@ process BCF_CONSENSUS {
     path reference
 
     output:
-    path "*.consensus.fasta", emit: fasta
-    path "versions.yml"     , emit: versions
+    tuple val(meta), path("*.consensus.fasta"), emit: fasta
+    path "versions.yml"                        , emit: versions
 
     when:
     params.run_phylo
 
     script:
-    // Build a per-sample pseudo-genome: apply this sample's variants onto the
-    // H37Rv reference. The FASTA header is renamed to the sample id so the
-    // downstream alignment carries sample names.
+    // Per-sample pseudo-genome: apply this sample's variants onto H37Rv.
+    // Contig name is kept as the reference name (NC_000962.3) so the mask BED
+    // matches; renaming to the sample id happens after masking (SNP_ALIGN).
     """
-    # bcftools consensus needs a bgzipped + indexed VCF
-    if [ "${vcf}" != "${meta.id}.norm.vcf.gz" ]; then
-        bcftools view ${vcf} -Oz -o ${meta.id}.norm.vcf.gz
-        bcftools index ${meta.id}.norm.vcf.gz
-    fi
-
-    bcftools consensus -f ${reference} ${meta.id}.norm.vcf.gz > tmp.fa
-
-    # rename the single contig header to the sample id
-    echo ">${meta.id}" > ${meta.id}.consensus.fasta
-    grep -v "^>" tmp.fa >> ${meta.id}.consensus.fasta
+    bcftools view ${vcf} -Oz -o norm.vcf.gz
+    bcftools index norm.vcf.gz
+    bcftools consensus -f ${reference} norm.vcf.gz > ${meta.id}.consensus.fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -39,7 +31,7 @@ process BCF_CONSENSUS {
 
     stub:
     """
-    printf '>%s\nACGTACGTACGT\n' "${meta.id}" > ${meta.id}.consensus.fasta
+    printf '>NC_000962.3\nACGTACGTACGT\n' > ${meta.id}.consensus.fasta
     touch versions.yml
     """
 }
