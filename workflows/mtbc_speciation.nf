@@ -1,8 +1,9 @@
-include { INPUT_CHECK   } from '../subworkflows/local/input_check.nf'
-include { QC_TRIM       } from '../subworkflows/local/qc_trim.nf'
-include { MAP_AND_CALL  } from '../subworkflows/local/map_and_call.nf'
-include { SPECIATE      } from '../subworkflows/local/speciate.nf'
-include { MULTIQC       } from '../modules/local/multiqc.nf'
+include { INPUT_CHECK      } from '../subworkflows/local/input_check.nf'
+include { QC_TRIM          } from '../subworkflows/local/qc_trim.nf'
+include { MAP_AND_CALL     } from '../subworkflows/local/map_and_call.nf'
+include { SPECIATE         } from '../subworkflows/local/speciate.nf'
+include { RESISTANCE_PHYLO } from '../subworkflows/local/resistance_phylo.nf'
+include { MULTIQC          } from '../modules/local/multiqc.nf'
 
 workflow MTBC_SPECIATION {
 
@@ -22,11 +23,19 @@ workflow MTBC_SPECIATION {
     MAP_AND_CALL ( QC_TRIM.out.reads, reference )
     ch_versions = ch_versions.mix( MAP_AND_CALL.out.versions )
 
-    // 4. MTBC speciation core (RD + TB-Profiler + SNP-IT -> consensus)
-SPECIATE ( QC_TRIM.out.reads, MAP_AND_CALL.out.vcf, MAP_AND_CALL.out.bam, file(params.rd_bed) )
+    // 4. MTBC speciation core (RD_REGIONS + TB-Profiler + SNP-IT -> consensus)
+    SPECIATE ( QC_TRIM.out.reads, MAP_AND_CALL.out.vcf, MAP_AND_CALL.out.bam, file(params.rd_bed) )
     ch_versions = ch_versions.mix( SPECIATE.out.versions )
 
-    // 5. aggregate report
+    // 5. cohort surveillance: SNP distances + phylogeny (only with --run_phylo)
+    RESISTANCE_PHYLO (
+        MAP_AND_CALL.out.vcf,
+        reference,
+        file(params.mask)
+    )
+    ch_versions = ch_versions.mix( RESISTANCE_PHYLO.out.versions )
+
+    // 6. aggregate report
     ch_multiqc = QC_TRIM.out.fastqc.map { it[1] }
         .mix( QC_TRIM.out.fastp.map { it[1] } )
         .collect()
