@@ -43,6 +43,30 @@ three continents. All calls are from a single pipeline run; raw output is in
 | [`ERR016861`](https://www.ebi.ac.uk/ena/browser/view/ERR016861) | *M. bovis* | ✅ *M. bovis* | ✅ ***M. bovis*** | *M. bovis* | *M. bovis* | *M. bovis* (full) |
 | [`DRR019437`](https://www.ncbi.nlm.nih.gov/sra/DRR019437) | *Homo sapiens*, Japan | ✅ *M. tuberculosis* | ✅ ***M. tuberculosis*** | *M. tuberculosis* | *M. tuberculosis* | *M. tuberculosis* (full) |
 
+### Surveillance output (`--run_phylo`)
+
+Adding `--run_phylo` builds a masked core-SNP alignment (repetitive PE/PPE and
+IS regions excluded via a TB-Profiler mask), a pairwise SNP-distance matrix, and
+a bootstrapped IQ-TREE. On the same four isolates:
+
+| | bovis | mtb | orygis (cattle) | orygis (human) |
+|---|---|---|---|---|
+| **bovis_ERR016861** | 0 | 2183 | 2164 | 2110 |
+| **mtb_DRR019437** | 2183 | 0 | 2383 | 2319 |
+| **orygis_cattle_IN** | 2164 | 2383 | 0 | **254** |
+| **orygis_human_CA** | 2110 | 2319 | **254** | 0 |
+
+The two *M. orygis* isolates — India/cattle and Canada/human — are **254 SNPs
+apart**, an order of magnitude closer to each other than to any other species
+(~2100–2400 SNPs), and form their own clade with **100% bootstrap support**,
+reproducing the known MTBC phylogeny (Brites et al. 2018) from the pipeline's own
+output. Raw matrix and tree: [`rd_test/phylo_snp_matrix.tsv`](rd_test/phylo_snp_matrix.tsv),
+[`rd_test/phylo_cohort.treefile`](rd_test/phylo_cohort.treefile).
+
+> The 254-SNP distance reflects two *epidemiologically unrelated* orygis
+> infections, not a transmission link. Resolving actual transmission (the 3–14 /
+> 0–6 SNP thresholds) needs a cluster of related isolates — a planned extension.
+
 **RD_REGIONS: 4/4. RD-Analyzer: 3/4 — wrong only on *M. orygis*.**
 
 That asymmetry is the point. RD-Analyzer is not a broken tool: it calls
@@ -165,8 +189,11 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
 - [x] **RD-Analyzer replaced** by `RD_REGIONS`, a coverage-based caller over the
       curated RDscan panel (Bespiatykh et al. 2021) — validated 4/4 across
       *M. orygis*, *M. bovis*, and *M. tuberculosis*
-- [ ] Cohort phylogeny: masked SNP alignment → `snp-dists` → IQ-TREE, with
-      published transmission thresholds (3–14 SNPs animal, 0–6 SNPs single-source)
+- [x] Cohort phylogeny: masked core-SNP alignment → `snp-dists` → IQ-TREE
+      (behind `--run_phylo`), validated on the 4-isolate cohort
+- [ ] Within-species surveillance tree: add a cluster of related *M. orygis*
+      isolates so the published transmission thresholds (3–14 SNPs animal,
+      0–6 SNPs single-source) become meaningful
 - [ ] Microreact export (tree + metadata)
 - [ ] Containerise the remaining processes and wire into CI
       (images will publish under `docker.io/biowizardhailey/mtbc-speciation-*`)
