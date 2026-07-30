@@ -63,11 +63,12 @@ reproducing the known MTBC phylogeny (Brites et al. 2018) from the pipeline's ow
 output. Raw matrix and tree: [`rd_test/phylo_snp_matrix.tsv`](rd_test/phylo_snp_matrix.tsv),
 [`rd_test/phylo_cohort.treefile`](rd_test/phylo_cohort.treefile).
 
+**[🔗 Explore this cohort interactively on Microreact →](https://microreact.org/project/saty9XmF1nN8xReDxsacoJ-mtbc-speciation-nf)**
+— tree, map, and metadata table, colour-toggle by species or host.
+
 > The 254-SNP distance reflects two *epidemiologically unrelated* orygis
 > infections, not a transmission link. Resolving actual transmission (the 3–14 /
 > 0–6 SNP thresholds) needs a cluster of related isolates — a planned extension.
-
-**[🔗 Explore this cohort interactively on Microreact →](https://microreact.org/project/saty9XmF1nN8xReDxsacoJ-mtbc-speciation-nf)**
 
 **RD_REGIONS: 4/4. RD-Analyzer: 3/4 — wrong only on *M. orygis*.**
 
