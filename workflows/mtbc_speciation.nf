@@ -27,11 +27,12 @@ workflow MTBC_SPECIATION {
     SPECIATE ( QC_TRIM.out.reads, MAP_AND_CALL.out.vcf, MAP_AND_CALL.out.bam, file(params.rd_bed) )
     ch_versions = ch_versions.mix( SPECIATE.out.versions )
 
-    // 5. cohort surveillance: SNP distances + phylogeny (only with --run_phylo)
+    // 5. cohort surveillance: SNP distances + phylogeny + Microreact (only with --run_phylo)
     RESISTANCE_PHYLO (
         MAP_AND_CALL.out.vcf,
         reference,
-        file(params.mask)
+        file(params.mask),
+        SPECIATE.out.consensus
     )
     ch_versions = ch_versions.mix( RESISTANCE_PHYLO.out.versions )
 
