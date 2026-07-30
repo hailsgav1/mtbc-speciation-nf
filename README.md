@@ -67,6 +67,8 @@ output. Raw matrix and tree: [`rd_test/phylo_snp_matrix.tsv`](rd_test/phylo_snp_
 > infections, not a transmission link. Resolving actual transmission (the 3–14 /
 > 0–6 SNP thresholds) needs a cluster of related isolates — a planned extension.
 
+**[🔗 Explore this cohort interactively on Microreact →](https://microreact.org/project/saty9XmF1nN8xReDxsacoJ-mtbc-speciation-nf)**
+
 **RD_REGIONS: 4/4. RD-Analyzer: 3/4 — wrong only on *M. orygis*.**
 
 That asymmetry is the point. RD-Analyzer is not a broken tool: it calls
