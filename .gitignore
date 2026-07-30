@@ -9,6 +9,8 @@ results_*/
 assets/H37Rv.fasta
 testdata/
 SRR*/
+ERR*/
+DRR*/
 bam/
 vcf/
 
@@ -16,6 +18,14 @@ vcf/
 ncbi_dataset/
 ncbi_dataset.zip
 md5sum.txt
+
+# TB-Profiler database clone (regenerable)
+tbdb/
+
+# Stray root-level RD panel copies (real ones live in rd_test/ and assets/)
+/RD.bed
+/RD_h37rv.bed
+/RD_regions.bed
 
 # Containers / caches
 *.sif
