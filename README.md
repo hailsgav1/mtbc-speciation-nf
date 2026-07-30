@@ -197,7 +197,7 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
 - [ ] Within-species surveillance tree: add a cluster of related *M. orygis*
       isolates so the published transmission thresholds (3–14 SNPs animal,
       0–6 SNPs single-source) become meaningful
-- [ ] Microreact export (tree + metadata)
+- [x] Microreact export (tree + metadata) — [live cohort project](https://microreact.org/project/saty9XmF1nN8xReDxsacoJ-mtbc-speciation-nf)
 - [ ] Containerise the remaining processes and wire into CI
       (images will publish under `docker.io/biowizardhailey/mtbc-speciation-*`)
 - [ ] Enable the AWS Batch profile
