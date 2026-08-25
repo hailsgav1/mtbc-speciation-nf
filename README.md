@@ -198,7 +198,7 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
       *M. orygis*, *M. bovis*, and *M. tuberculosis*
 - [x] Cohort phylogeny: masked core-SNP alignment → `snp-dists` → IQ-TREE
       (behind `--run_phylo`), validated on the 4-isolate cohort
-- [ ] Within-species surveillance tree: add a cluster of related *M. orygis*
+- [x] Within-species surveillance tree: add a cluster of related *M. orygis*
       isolates so the published transmission thresholds (3–14 SNPs animal,
       0–6 SNPs single-source) become meaningful
 - [x] Microreact export (tree + metadata) — [live cohort project](https://microreact.org/project/saty9XmF1nN8xReDxsacoJ-mtbc-speciation-nf)
