@@ -120,6 +120,8 @@ unzip -o ncbi_dataset.zip
 cp ncbi_dataset/data/GCF_000195955.2/*.fna assets/H37Rv.fasta
 
 # 4. Fetch the validated cohort (4 isolates, 3 species) referenced by assets/samplesheet.csv
+#    NOTE: ERR016861 is large (~2 GB, ~1 hr to map). For a quick test, fetch just
+#    SRR9157804 + SRR23445127 and use a 2-row samplesheet instead.
 for acc in SRR9157804 SRR23445127 ERR016861 DRR019437; do
     prefetch $acc
     fasterq-dump --split-files $acc -O testdata
