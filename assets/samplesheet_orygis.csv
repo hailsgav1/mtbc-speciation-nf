@@ -1,0 +1,7 @@
+sample,fastq_1,fastq_2,host,collection_date,country,location,expected_species
+orygis_CA_127,testdata/SRR23445127_1.fastq.gz,testdata/SRR23445127_2.fastq.gz,Homo sapiens,NA,Canada,Alberta,Mycobacterium_orygis
+orygis_CA_124,testdata/SRR23445124_1.fastq.gz,testdata/SRR23445124_2.fastq.gz,Homo sapiens,NA,Canada,NA,Mycobacterium_orygis
+orygis_CA_125,testdata/SRR23445125_1.fastq.gz,testdata/SRR23445125_2.fastq.gz,Homo sapiens,NA,Canada,NA,Mycobacterium_orygis
+orygis_CA_128,testdata/SRR23445128_1.fastq.gz,testdata/SRR23445128_2.fastq.gz,Homo sapiens,NA,Canada,NA,Mycobacterium_orygis
+orygis_CA_129,testdata/SRR23445129_1.fastq.gz,testdata/SRR23445129_2.fastq.gz,Homo sapiens,NA,Canada,NA,Mycobacterium_orygis
+orygis_CA_181,testdata/SRR23445181_1.fastq.gz,testdata/SRR23445181_2.fastq.gz,Homo sapiens,NA,Canada,NA,Mycobacterium_orygis

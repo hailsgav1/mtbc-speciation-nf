@@ -1,0 +1,7 @@
+snp-dists 1.2.0	orygis_CA_124	orygis_CA_125	orygis_CA_127	orygis_CA_128	orygis_CA_129	orygis_CA_181
+orygis_CA_124	0	283	316	335	341	426
+orygis_CA_125	283	0	326	331	332	431
+orygis_CA_127	316	326	0	144	173	392
+orygis_CA_128	335	331	144	0	160	403
+orygis_CA_129	341	332	173	160	0	406
+orygis_CA_181	426	431	392	403	406	0
