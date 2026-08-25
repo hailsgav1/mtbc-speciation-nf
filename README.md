@@ -68,7 +68,24 @@ output. Raw matrix and tree: [`rd_test/phylo_snp_matrix.tsv`](rd_test/phylo_snp_
 
 > The 254-SNP distance reflects two *epidemiologically unrelated* orygis
 > infections, not a transmission link. Resolving actual transmission (the 3–14 /
-> 0–6 SNP thresholds) needs a cluster of related isolates — a planned extension.
+> 0–6 SNP thresholds) needs a cluster of related isolates — demonstrated below.
+
+### Within-species resolution
+
+Run on a 6-isolate *M. orygis* cohort from a single national survey
+(PRJNA934340, human cases across Canada, 2009–2022), the same surveillance
+step resolves fine-scale structure:
+
+- isolates 127 / 128 / 129 form a clade (**100% bootstrap**, 144–173 SNPs apart)
+- 124 / 125 pair separately (~283 SNPs)
+- 181 is a divergent outlier (~400 SNPs from all others)
+
+No pair falls in the 0–14 SNP transmission range, consistent with geographically
+dispersed cases rather than a point-source outbreak — the honest expected result
+for a national survey, and a demonstration that the pipeline *would* flag a
+transmission link if one were present. Matrix and tree:
+[`rd_test/orygis_cluster_snp_matrix.tsv`](rd_test/orygis_cluster_snp_matrix.tsv),
+[`rd_test/orygis_cluster.treefile`](rd_test/orygis_cluster.treefile).
 
 **RD_REGIONS: 4/4. RD-Analyzer: 3/4 — wrong only on *M. orygis*.**
 
