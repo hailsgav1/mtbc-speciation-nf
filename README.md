@@ -107,45 +107,47 @@ A hybrid strategy keeps each tool in a working environment:
 nextflow run . -profile test -stub-run
 
 # 2. Build the environments
-#    Main env: everything except the legacy RD-Analyzer comparison step.
+#    Main env: QC, mapping, RD_REGIONS (samtools-based), TB-Profiler, SNP-IT, phylogeny.
 conda env create -f environment.yml
-#    Python-2 env: only needed for the legacy RD_ANALYZER comparison column.
+#    Python-2 env: only for the legacy RD-Analyzer comparison column.
 conda create -n rd-analyzer-env -c bioconda -c conda-forge rd-analyzer python=2.7 -y
-#    TB-Profiler runs from a Singularity image, pulled automatically on first run,
+#    TB-Profiler runs from a Singularity image pulled automatically on first run,
 #    so Apptainer/Singularity must be available.
 
-# 3. Fetch the H37Rv reference and one real M. orygis isolate
+# 3. Fetch the H37Rv reference
 datasets download genome accession GCF_000195955.2 --include genome
 unzip -o ncbi_dataset.zip
 cp ncbi_dataset/data/GCF_000195955.2/*.fna assets/H37Rv.fasta
-prefetch SRR9157804
-fasterq-dump --split-files SRR9157804 -O testdata
-gzip testdata/SRR9157804_*.fastq
 
-# 4. Point a samplesheet at it
-cat > assets/samplesheet_quickstart.csv <<'EOF'
-sample,fastq_1,fastq_2,host,collection_date,country,location,expected_species
-orygis_cattle_IN,testdata/SRR9157804_1.fastq.gz,testdata/SRR9157804_2.fastq.gz,Bos taurus,2019,India,Chennai,Mycobacterium_orygis
-EOF
+# 4. Fetch the validated cohort (4 isolates, 3 species) referenced by assets/samplesheet.csv
+for acc in SRR9157804 SRR23445127 ERR016861 DRR019437; do
+    prefetch $acc
+    fasterq-dump --split-files $acc -O testdata
+    gzip testdata/${acc}_*.fastq
+done
 
-# 5. Run
+# 5. Run speciation + surveillance (phylogeny + Microreact) on the cohort
 conda activate mtbc-speciation
 nextflow run . -profile local \
-  --input assets/samplesheet_quickstart.csv \
+  --input assets/samplesheet.csv \
   --reference assets/H37Rv.fasta \
-  --outdir results
+  --outdir results \
+  --run_phylo
 
-# 6. The headline output
-cat results/speciation/consensus/*.consensus.tsv | column -t -s$'\t'
+# 6. Outputs
+cat results/speciation/consensus/*.consensus.tsv | column -t -s$'\t'   # per-sample species calls
+cat results/surveillance/snp_distance_matrix.tsv                        # pairwise SNP distances
+#   results/surveillance/cohort.treefile          -> phylogeny (Newick)
+#   results/surveillance/microreact_metadata.csv  -> upload with the tree to microreact.org
 ```
+
+For a single-isolate smoke test, drop `--run_phylo` (a tree needs ≥2 samples) and
+point `--input` at a one-row samplesheet.
 
 `conf/local.config` expects the two conda envs at `$HOME/.conda/envs/mtbc-speciation`
 and `$HOME/.conda/envs/rd-analyzer-env`; edit the `params.main_env` / `params.rd_env`
-defaults there if yours live elsewhere. On a cluster, run this from a compute node
-rather than the login node.
-
-To reproduce the four-isolate validation above, use `assets/samplesheet_validation.csv`
-after fetching `SRR23445127`, `ERR016861` and `DRR019437` the same way.
+defaults there if yours live elsewhere. On a cluster, run from a compute node, not the
+login node.
 
 
 ## Input
