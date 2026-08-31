@@ -1,0 +1,39 @@
+name: docker-build
+
+# Build + push the runtime image to Docker Hub.
+# Triggers on: manual run, tagged release, or changes to the Dockerfile/env.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+    paths:
+      - 'Dockerfile'
+      - 'environment.yml'
+      - '.github/workflows/docker.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            biowizardhailey/mtbc-speciation-nf:latest
+            biowizardhailey/mtbc-speciation-nf:${{ github.sha }}
