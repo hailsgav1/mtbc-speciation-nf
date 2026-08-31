@@ -18,6 +18,7 @@ dependencies:
   - mtb-snp-it        # provides the `snpit` command
   # surveillance
   - snp-dists
+  - snp-sites
   - iqtree
   # reporting + scripting
   - multiqc
