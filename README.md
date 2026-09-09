@@ -116,6 +116,14 @@ A hybrid strategy keeps each tool in a working environment:
 - **TB-Profiler** runs from a Galaxy/BioContainers **Singularity image**, so its
   database, Java, and snpEff are self-contained and version-matched — sidestepping
   the fragile conda database build entirely.
+
+A prebuilt runtime image (`biowizardhailey/mtbc-speciation-nf`) is also built and
+pushed to Docker Hub automatically by GitHub Actions from the repo `Dockerfile`,
+carrying every tool except TB-Profiler (its own image) and the legacy RD-Analyzer.
+Run with **`-profile container`** to execute every process from it via
+Apptainer/Singularity; **`-profile local`** uses the conda environment instead. The
+image build is CI-validated — a sanity-check step fails the build if any tool is
+missing from `PATH`.
   
 ## Quick start
 
@@ -239,8 +247,16 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
   to false coverage calls, and the RD12 locus is a nest of overlapping
   annotations (RD12 ⊂ RD12oryx ⊂ RDcan) that produces phantom partial signals.
   Working notes and coverage output are in [`rd_test/`](rd_test/).
+- The `RD_REGIONS` animal-adapted gate (RD7/8/9/10) uses a **majority rule** and
+  defers to the orygis-unique RD301/RD315 markers: on low-coverage isolates a few
+  mismapped reads can inflate one or two animal-gate regions past the deletion
+  threshold, so a clear RD301+RD315 deletion with intact RD305/RD4/RDbovis is
+  trusted as the more specific signal. Validated to call *M. orygis*, *M. bovis*,
+  and *M. tuberculosis* correctly — including a 35× low-coverage *M. orygis*
+  isolate that a strict all-four gate had misclassified as *M. tuberculosis*.
 - Drug-resistance calls follow the WHO mutation catalogue via TB-Profiler; the
   catalogue is periodically updated, so pin the TB-Profiler DB version you use.
+  
 
 ## License
 
