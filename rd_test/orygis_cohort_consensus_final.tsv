@@ -1,0 +1,7 @@
+sample	host	collection_date	country	location	rd_analyzer_call	rd_regions_call	tbprofiler_call	snpit_call	consensus	agreement
+orygis_CA_124	Homo sapiens	NA	Canada	NA	Mycobacterium_caprae	Mycobacterium_orygis	Mycobacterium_orygis	unknown	Mycobacterium_orygis	majority
+orygis_CA_125	Homo sapiens	NA	Canada	NA	Mycobacterium_caprae	Mycobacterium_orygis	Mycobacterium_orygis	unknown	Mycobacterium_orygis	majority
+orygis_CA_127	Homo sapiens	NA	Canada	Alberta	Mycobacterium_caprae	Mycobacterium_orygis	Mycobacterium_orygis	unknown	Mycobacterium_orygis	majority
+orygis_CA_128	Homo sapiens	NA	Canada	NA	Mycobacterium_caprae	Mycobacterium_orygis	Mycobacterium_orygis	unknown	Mycobacterium_orygis	majority
+orygis_CA_129	Homo sapiens	NA	Canada	NA	Mycobacterium_caprae	Mycobacterium_orygis	Mycobacterium_orygis	unknown	Mycobacterium_orygis	majority
+orygis_CA_181	Homo sapiens	NA	Canada	NA	Mycobacterium_caprae	Mycobacterium_orygis	Mycobacterium_orygis	unknown	Mycobacterium_orygis	majority
