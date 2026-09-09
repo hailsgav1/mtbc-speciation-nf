@@ -65,10 +65,17 @@ def classify(frac):
     def absent(r):  return frac.get(r, 1.0) <= ABSENT_MAX
     def present(r): return frac.get(r, 0.0) >= PRESENT_MIN
 
-    animal = absent("RD9") and absent("RD7") and absent("RD8") and absent("RD10")
+    # Animal-adapted gate: RD7/RD8/RD9/RD10 are deleted in the animal-adapted
+    # clade. Require a MAJORITY (>=3 of 4) rather than all four, so a single
+    # coverage-noisy region on a low-depth isolate doesn't flip the call.
+    animal_rds = ["RD7", "RD8", "RD9", "RD10"]
+    n_absent = sum(absent(r) for r in animal_rds)
+    animal = n_absent >= 3
 
     if not animal:
-        return "Mycobacterium_tuberculosis", "not animal-adapted (RD7/9 present)"
+        present_rds = [r for r in animal_rds if not absent(r)]
+        return ("Mycobacterium_tuberculosis",
+                f"not animal-adapted ({','.join(present_rds)} present)")
 
     if absent("RD301") and absent("RD315"):
         if present("RD305") and present("RD4") and present("RDbovis"):
