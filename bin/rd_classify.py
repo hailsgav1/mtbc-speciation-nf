@@ -66,20 +66,29 @@ def classify(frac):
     def present(r): return frac.get(r, 0.0) >= PRESENT_MIN
 
     # Animal-adapted gate: RD7/RD8/RD9/RD10 are deleted in the animal-adapted
-    # clade. Require a MAJORITY (>=3 of 4) rather than all four, so a single
-    # coverage-noisy region on a low-depth isolate doesn't flip the call.
+    # clade. Require a majority (>=2 of 4) absent as a sanity pre-check; on
+    # low-coverage isolates one or two of these regions can read as falsely
+    # present from a few mismapped reads.
     animal_rds = ["RD7", "RD8", "RD9", "RD10"]
     n_absent = sum(absent(r) for r in animal_rds)
-    animal = n_absent >= 3
+    animal = n_absent >= 2
+
+    # M. orygis: RD301 and RD315 are PCR-validated, orygis-UNIQUE deletions.
+    # When both are clearly deleted and the caprae/bovis exclusions hold, this
+    # is a stronger, more specific signal than the generic animal gate — so it
+    # is trusted even if the gate is marginal on a low-depth sample.
+    orygis_markers = absent("RD301") and absent("RD315")
+    not_caprae_bovis = present("RD305") and present("RD4") and present("RDbovis")
+
+    if orygis_markers and not_caprae_bovis:
+        return "Mycobacterium_orygis", "RD301+RD315 deleted; RD305/RD4/RDbovis intact"
 
     if not animal:
         present_rds = [r for r in animal_rds if not absent(r)]
         return ("Mycobacterium_tuberculosis",
                 f"not animal-adapted ({','.join(present_rds)} present)")
 
-    if absent("RD301") and absent("RD315"):
-        if present("RD305") and present("RD4") and present("RDbovis"):
-            return "Mycobacterium_orygis", "RD301+RD315 deleted; RD305/RD4/RDbovis intact"
+    if orygis_markers:
         return "Mycobacterium_orygis", "RD301+RD315 deleted"
 
     if absent("RD305"):
