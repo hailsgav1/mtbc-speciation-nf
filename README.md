@@ -229,7 +229,8 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
 - [x] Microreact export (tree + metadata) — [live cohort project](https://microreact.org/project/saty9XmF1nN8xReDxsacoJ-mtbc-speciation-nf)
 - [x] Containerise the remaining processes and wire into CI
       (images will publish under `docker.io/biowizardhailey/mtbc-speciation-*`)
-- [ ] Enable the AWS Batch profile
+- [ ] AWS Batch profile — *future work*. The `cloud` profile is scaffolded but
+      **not validated**; HPC (Apptainer) and local are the tested execution paths.
 - [ ] `nextflow_schema.json` polish for Seqera Platform launch
 
 ## Notes and honest caveats
