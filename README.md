@@ -264,7 +264,7 @@ For the remaining panel members, `bin/fetch_testdata.sh` documents ENA queries
   isolate that a strict all-four gate had misclassified as *M. tuberculosis*.
 - Drug-resistance calls follow the WHO mutation catalogue via TB-Profiler; the
   catalogue is periodically updated, so pin the TB-Profiler DB version you use.
-  - *M. orygis* was only formally described as a distinct MTBC member in 2012
+- *M. orygis* was only formally described as a distinct MTBC member in 2012
   (Van Ingen et al.), which is why much of the diagnostic infrastructure —
   including the RD panel discussed above — predates it.
   
