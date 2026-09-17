@@ -43,6 +43,13 @@ three continents. All calls are from a single pipeline run; raw output is in
 | [`ERR016861`](https://www.ebi.ac.uk/ena/browser/view/ERR016861) | *M. bovis* | ✅ *M. bovis* | ✅ ***M. bovis*** | *M. bovis* | *M. bovis* | *M. bovis* (full) |
 | [`DRR019437`](https://www.ncbi.nlm.nih.gov/sra/DRR019437) | *Homo sapiens*, Japan | ✅ *M. tuberculosis* | ✅ ***M. tuberculosis*** | *M. tuberculosis* | *M. tuberculosis* | *M. tuberculosis* (full) |
 
+`SRR9157804` is the isolate described in *Whole-Genome Sequencing of a
+Mycobacterium orygis Strain Isolated from Cattle in Chennai, India*
+([PMID 31582446](https://pubmed.ncbi.nlm.nih.gov/31582446/)). Spoligotyping
+assigned it ST587 and whole-genome sequencing confirmed *M. orygis* — the same
+call this pipeline reaches independently, from Regions of Difference rather than
+from spoligotype or SNP barcode.
+
 ### Surveillance output (`--run_phylo`)
 
 Adding `--run_phylo` builds a masked core-SNP alignment (repetitive PE/PPE and
